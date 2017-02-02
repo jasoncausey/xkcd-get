@@ -110,7 +110,7 @@ def downImage(a,count,imgform,title,alt):
         widthh = 30
     for line in textwrap.wrap(alt, width=widthh):
         w,h = draw.textsize(line)
-        draw.text(((width-w)/2-(w/2),70+height+cc),line, fill='white', font=arvo)
+        draw.text(((width-w)/2-(w/2),70+height+cc),line, fill='white', font=xkcdFont)
         cc += 20
     im.save(filename)
 
