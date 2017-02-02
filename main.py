@@ -1,7 +1,6 @@
 # Multi-threaded python program to download xkcd comics, along with the heading and the alt-text.
 __author__ = 'TheUbermanIsHere'
 
-
 # The Program must check for all of the xkcd comics that have been downloaded uptill now.
 # All the comics that are missing will be downloaded.
 # The downloaded files must be saved as png's with their numbers as the filename.
@@ -11,12 +10,14 @@ import re
 import os
 import requests
 import bs4
-import PIL
+from PIL import Image,ImageDraw,ImageFont
+import textwrap
 
 # Create a list of all the files that are present in the current directory.
 
-pngReg = re.compile(r'[a-zA-Z0-9]*.png')
+pngReg = re.compile(r'[a-zA-Z0-9]*.(png|jpg)')
 dirdump = os.listdir()
+
 
 for i in reversed(dirdump):
     b = pngReg.search(i)
@@ -59,7 +60,7 @@ counter = int(bb.group())
 
 # Create a list of all the comics to be downloaded.
 
-downlist = list(i for i in range(131,counter))
+downlist = list(i for i in range(1,counter))
 downlist = list(set(downlist) - set(dirlist))
 
 # The Download list has been initialized.
@@ -72,15 +73,23 @@ def xkcd(a):
         page.raise_for_status()
         bs = bs4.BeautifulSoup(page.text,"lxml")
         title = bs.select('#ctitle')
-        print(title[0].getText())
+        title = title[0].getText()
+        print(title)
 
         alttext = bs.select('img')
         alttext = alttext[1].attrs
-        print(alttext['title'])
+        alt = alttext['title']
+        print(alt)
 
         text = bs.select('#middleContainer')
-        textRe = re.compile(r'http.*\.(png|jpg)')
+        textRe = re.compile(r'http.*\.png')
         aa = textRe.search(text[0].getText())
+        imgform = 'png'
+        if aa is None:
+            textRe = re.compile(r'http.*\.jpg')
+            aa = textRe.search(text[0].getText())
+            imgform = 'jpg'
+
 
         initRe = re.compile(r'http://xk.*/')
         b = initRe.search(text[0].getText())
@@ -91,26 +100,48 @@ def xkcd(a):
         print(bb.group())
 
         count = int(bb.group())
-        downImage(aa.group(), count)
-
-
-
+        downImage(aa.group(),count,imgform,title,alt)
 
 
 # Main-function that handles everything from downloading, to image processing, to saving the file.
-def downImage(a, count):
+def downImage(a,count,imgform,title,alt):
     image = requests.get(a)
     image.raise_for_status()
-    ximage = open(str(count)+'.png','wb')
+    if imgform == 'png':
+        filename = str(count)+'.png'
+        ximage = open(filename,'wb')
+    else:
+        filename = str(count)+'.jpg'
+        ximage = open(filename,'wb')
     for i in image.iter_content(100000):
         ximage.write(i)
     ximage.close()
+    ximage = Image.open(filename)
+    width, height = ximage.size
+    arvo = ImageFont.truetype('xkcd.otf',22)
+    im = Image.new('RGBA', (width,70+height+160), 'black')
+    im.paste(ximage, (0, 70))
+    draw = ImageDraw.Draw(im)
+    w,h = draw.textsize(title)
+    draw.text(((width-w)/2-(w/2),35),title, fill='white', font=arvo)
+    cc = 20 
+    widthh = 50
+    if width<510:
+        widthh = 40
+    if width<410:
+        widthh = 30
+    for line in textwrap.wrap(alt, width=widthh):
+        w,h = draw.textsize(line)
+        draw.text(((width-w)/2-(w/2),70+height+cc),line, fill='white', font=arvo)
+        cc += 20
+    im.save(filename)
 
 xkcd(downlist)
 
-# Get the Heading and the Alt-text.
-
-
-# Image Processing
-
+# To-do:
+# 1. Get the size of the image.
+# 2. Figure out the size of the text that must be pasted
+# 3. Open a new image, and paste the downloaded image on top of that
+# 4. Put the heading and the alt-text in place.
+# 5. Save the Image as a png file.
 
