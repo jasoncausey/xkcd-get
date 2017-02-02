@@ -8,3 +8,7 @@ A [XKCD](http://xkcd.xcom) comic downloader written in Python3.
 + It automatically detects and downloads the comics that are not present in the current directory.
 + It uses [PILLOW](https://github.com/python-pillow/Pillow) to add the alt-text and title directly onto the image.
 + It uses the [XKCD typeface](http://log.danielignacio.me/xkcd-typeface) to make the addition look seamless.
+
+Final Output:
+
+![Sample](http://i.imgur.com/aawrPe5.png)
