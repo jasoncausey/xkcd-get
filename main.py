@@ -23,6 +23,7 @@ for i in dirdump:
     i = i.split('.')
     i = i[0]
     dirlist.append(int(i))
+dirlist.append(404)
 
 print(dirlist)
 
@@ -97,17 +98,23 @@ def downImage(a,count,imgform,title,alt):
     ximage = Image.open(filename)
     width, height = ximage.size
     xkcdFont = ImageFont.truetype('xkcd.otf',22)
-    im = Image.new('RGBA', (width,70+height+160), 'black')
+    im = Image.new('RGBA', (width,70+height+200), 'black')
     im.paste(ximage, (0, 70))
     draw = ImageDraw.Draw(im)
     w,h = draw.textsize(title)
     draw.text(((width-w)/2-(w/2),35),title, fill='white', font=xkcdFont)
     cc = 20 
     widthh = 50
-    if width<510:
+    if width<551:
         widthh = 40
+    if width<461:
+        widthh = 35
     if width<410:
         widthh = 30
+    if width<360:
+        widthh = 25
+    if width<310:
+        widthh = 20
     for line in textwrap.wrap(alt, width=widthh):
         w,h = draw.textsize(line)
         draw.text(((width-w)/2-(w/2),70+height+cc),line, fill='white', font=xkcdFont)
